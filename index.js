@@ -24,9 +24,16 @@ const pdfparse = require('pdf-parse')
 const Database = require("@replit/database")
 const db = new Database()
 
-const generalSci = fs.readFileSync("./Science Bowl/Science Bowl General Questions.pdf")
+const sciBowlGeneral = fs.readFileSync("./science-bowl/general.pdf");
+const sciBowlAstronomy = fs.readFileSync("./science-bowl/astronomy.pdf");
+const sciBowlBiology = fs.readFileSync("./science-bowl/biology.pdf");
+const sciBowlChemistry = fs.readFileSync("./science-bowl/chemistry.pdf");
+const sciBowlESS = fs.readFileSync("./science-bowl/ess.pdf");
+const sciBowlPhysics = fs.readFileSync("./science-bowl/physics.pdf");
+var sciBowlQuestions = require("./scibowl.js");
 
 var online = false;
+
 
 class Bot {
   constructor(name, pfp){
@@ -104,14 +111,14 @@ function getJoke() {
   }
 
 
-function sciBowl(){
+/*function sciBowl(){
   pdfparse(generalSci).then(function(data) {
     return data.text
   })
-}
+}*/
 
 client.once("ready", () => {
-  let alarm = new cron.CronJob('00 50 11 * * *', () => {
+  let alarm = new cron.CronJob('00 50 10 * * *', () => {
     const guild = client.guilds.cache.get('id');
     const channel = '951886530492895302';
     /*(client.channels.cache.get('951886530492895302')).send('<@703017064675409952>')
@@ -123,15 +130,16 @@ client.once("ready", () => {
   .then(webhook => webhook.send('Wakey wakey, <@703017064675409952>! Rise and shine!'))
   .catch(console.error)
     client.channels.cache.get('951886530492895302').fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
   });
   })
   alarm.start()
 client.channels.cache.get('951886530492895302').fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
   });
   
 });
+
 
 client.on("message", async msg => {
   if(msg.content.startsWith("&p") || msg.content.startsWith("&ping")){
@@ -195,7 +203,7 @@ client.on("message", async msg => {
           msg.channel.send(response.statusText);
         }
         msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete())
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}})
     });
       }
         }
@@ -211,21 +219,63 @@ client.on("message", async msg => {
   answer = nerdamer("solve(" + q.split(" ").join("") + ", x)").toString()
   msg.reply(answer)
   }
-  if(msg.content.indexOf("&sci") === 0){
-    if(msg.content.length <= 5){
-    await pdfparse(generalSci).then(async function(data) {
-    let questions = data.text.replace("Science BowlGENERALSCIENCE", "").split("GENR-93;")
-    let qNum = between(0, questions.length - 1)
-    msg.reply(questions[qNum].slice(0, questions[qNum].indexOf("ANSWER:")))
-    db.set("answer", questions[qNum].slice( questions[qNum].indexOf("ANSWER:") + 7))
-    //msg.reply(sciBowl())
-    })
-  }
-  else{
-    db.get("answer").then(value => {
-      msg.reply(value)
-    })
-  }
+  
+    if(msg.content.indexOf("&sci") === 0){
+      var subject = "";
+      if(msg.content.split(" ").length > 1){
+        if(msg.content.split(" ")[1].toLowerCase() === "gen" || msg.content.split(" ")[1].toLowerCase() === "general" || msg.content.split(" ")[1].toLowerCase() === "generalscience") subject = "General Science";
+        //if(msg.content.split(" ")[1].toLowerCase() === "ast" || msg.content.split(" ")[1].toLowerCase() === "astr" || msg.content.split(" ")[1].toLowerCase() === "astro" || msg.content.split(" ")[1].toLowerCase() === "astronomy") subject = "ASTR";
+        if(msg.content.split(" ")[1].toLowerCase() === "bio" || msg.content.split(" ")[1].toLowerCase() === "biology") subject = "Biology";
+        if(msg.content.split(" ")[1].toLowerCase() === "chem" || msg.content.split(" ")[1].toLowerCase() === "chemistry") subject = "Chemistry";
+        if(msg.content.split(" ")[1].toLowerCase() === "phy" || msg.content.split(" ")[1].toLowerCase() === "phys" || msg.content.split(" ")[1].toLowerCase() === "physics") subject = "Physics";
+        if(msg.content.split(" ")[1].toLowerCase() === "es" || msg.content.split(" ")[1].toLowerCase() === "ess" || msg.content.split(" ")[1].toLowerCase() === "earthspace" || msg.content.split(" ")[1].toLowerCase() === "earthandspace") subject = "Earth and Space";
+        if(msg.content.split(" ")[1].toLowerCase() === "math" || msg.content.split(" ")[1].toLowerCase() === "mathematics") subject = "Math";
+        if(msg.content.split(" ")[1].toLowerCase() === "en" || msg.content.split(" ")[1].toLowerCase() === "ene" || msg.content.split(" ")[1].toLowerCase() === "ener" || msg.content.split(" ")[1].toLowerCase() === "energy") subject = "Energy";
+      }
+      if(msg.content.trim() === "&sci" || subject !== ""){
+        if((between(1, 6) === 1 || subject === "General Science") && (!subject.startsWith("B") && !subject.startsWith("C") && !subject.startsWith("P") && !subject.startsWith("E") && !subject.startsWith("M"))){
+        /*var questionBank;
+        var subjectNum = between(1, 7);
+        if(subjectNum === 1) questionBank = sciBowlGeneral;
+        if(subjectNum === 2) questionBank = sciBowlAstronomy;
+        if(subjectNum === 3) questionBank = sciBowlBiology;
+        if(subjectNum === 4) questionBank = sciBowlChemistry;
+        if(subjectNum === 5) questionBank = sciBowlESS;
+        if(subjectNum === 6) questionBank = sciBowlPhysics;
+
+        if(subject === )*/
+        
+        await pdfparse(sciBowlGeneral).then(async function(data) {
+        let questions = data.text.replace("Science BowlGENERALSCIENCE", "").split("GENR-93;")
+        let qNum = between(0, questions.length - 1)
+        msg.reply(questions[qNum].slice(0, questions[qNum].indexOf("ANSWER:")))
+        db.set("answer", questions[qNum].slice( questions[qNum].indexOf("ANSWER:") + 7))
+        //msg.reply(sciBowl())
+        })
+        }
+        else{
+          var round = between(0, sciBowlQuestions.length - 1);
+          var questionBank = sciBowlQuestions[round];
+          
+          if(subject) questionBank = questionBank.filter((question) => question.includes(subject + " – "));
+          let qNum = between(0, questionBank.length - 1);
+          let question = questionBank[qNum].split("ANSWER:")[0].replace(" W) ", " \nW) ").split("ANSWER:")[0].replace(" X) ", " \nX) ").split("ANSWER:")[0].replace(" Y) ", " \nY) ").split("ANSWER:")[0].replace(" Z) ", " \nZ) ");
+          
+          while(question.trim() === "" || question === null || question === undefined){
+            qNum = between(0, questionBank.length - 1);
+            question = questionBank[qNum].split("ANSWER:")[0].replace(" W) ", " \nW) ").split("ANSWER:")[0].replace(" X) ", " \nX) ").split("ANSWER:")[0].replace(" Y) ", " \nY) ").split("ANSWER:")[0].replace(" Z) ", " \nZ) ");
+          }
+          
+          let qType = (question.includes("Multiple Choice") ? "Multiple Choice" : "Short Answer");
+          msg.reply("***Round " + (round + 1) + "*\n" + question.slice(question.indexOf(")") + 2, question.indexOf(qType) + qType.length) + "**\n" + question.slice(question.indexOf(qType) + qType.length + 1));
+          db.set("answer", "ANSWER: " + questionBank[qNum].split("ANSWER: ")[1]);
+        }
+    }
+    else if(msg.content.trim() === "&sci a"){
+      db.get("answer").then(value => {
+        msg.reply("||" + value.replace(/(\r\n|\n|\r)/gm, "").split("GENR-91")[0].split("High School -")[0] + "||")
+      })
+    }
   }
 })
 
@@ -236,7 +286,7 @@ client.on("message", async msg => {
     
     })
     newMsg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete())
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}})
     });
   }
 });
@@ -259,7 +309,7 @@ client.on("message", async msg => {
   .then(webhook => webhook.send("Literally nobody likes you"))
   .catch(console.error)
     msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete())
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}})
     });
   }
 })
@@ -272,7 +322,7 @@ client.on("message", msg => {
   .then(webhook => webhook.send("+---+---+---+\n| " + grid[0] + " | " + grid[1] + " | " + grid[2] + " |\n+---+---+---+\n| " + grid[3] + " | " + grid[4] + " | " + grid[5] + " |\n+---+---+---+\n| " + grid[6] + " | " + grid[7] + " | " + grid[8] + " |\n+---+---+---+" ))
   .catch(console.error)
   msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
   });
   
 }});
@@ -289,7 +339,7 @@ if (msg.channel.id === '951886530492895302') {
   .catch(console.error)
   jCount = 0;
      msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
   })
   }
   else{
@@ -307,7 +357,7 @@ client.on("message", msg => {
   .then(webhook => webhook.send("Webhooks are active!"))
   .catch(console.error)
   msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
   
 });
 }});
@@ -316,22 +366,46 @@ client.on("message", msg => {
 client.on("message", msg => {
   if(msg.content.toLowerCase().match('gay')){
     if(msg.author.bot) return;
-    msg.channel.createWebhook('Gaybot', {avatar: 'https://image.tmdb.org/t/p/w500/y4DGEQpqr89xKmi413S4hDoqAKS.jpg'}).then(webhook => webhook.send('\<:tienes_gay:994272324448694332>'));
-    msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
-});
+    msg.channel.createWebhook('Gaybot', {avatar: 'https://image.tmdb.org/t/p/w500/y4DGEQpqr89xKmi413S4hDoqAKS.jpg'}).then(webhook => {webhook.send('\<:tienes_gay:994272324448694332>');});
   }
+  
+  // &p
+  if(msg.content.toLowerCase().match('do you believe in the power of') /*|| msg.embeds[0].title.toLowerCase().match('do you believe in the power of') || msg.embeds[0].description.toLowerCase().match('do you believe in the power of')*/){
+    msg.channel.createWebhook('Powerbot', {avatar: 'https://m.media-amazon.com/images/S/aplus-media/sota/c5088cef-4014-4bd0-9170-8b7af252264b.__CR0,0,220,220_PT0_SX220_V1___.jpg'}).then(webhook => {webhook.send('**Yes.**');});
+  }
+
+  if(msg.content.toLowerCase().match('yuh huh') || msg.content.toLowerCase().match('yuh-huh')){
+    if(msg.author.bot) return;
+    msg.channel.createWebhook('Nuh-uh-bot', {avatar: 'https://is1-ssl.mzstatic.com/image/thumb/Publication123/v4/bc/33/51/bc335105-888d-3419-b408-650e507fcbd8/9781471115660.jpg/1200x630wz.png'}).then(webhook => {webhook.send('nuh-uh');});
+  }
+
+  if(msg.content.toLowerCase().startsWith("&n") || msg.content.toLowerCase().startsWith("&nuh-uh")){
+    try{
+      if(msg.author.bot) return;
+      var nCount = 1; 
+      if(msg.content.length > 2) nCount = parseInt(msg.content.split(" ")[1]);
+      msg.channel.fetchWebhooks().then((webhooks) => { 
+    webhooks.forEach((wh) => {wh.delete().catch(_ => null);})
+  });
+    msg.channel.createWebhook('Nuh-uh-bot', {avatar: 'https://is1-ssl.mzstatic.com/image/thumb/Publication123/v4/bc/33/51/bc335105-888d-3419-b408-650e507fcbd8/9781471115660.jpg/1200x630wz.png'}).then(webhook => {
+      for(i = 0; i < nCount; i++){
+        webhook.send('nuh-uh');
+      }
+    });
+    }
+    catch(e){
+      
+    }
+  }
+  
   if (msg.content === "&w" || msg.content === "&wish"){ 
    
     msg.channel.createWebhook('Wishbot', {
   avatar: 'https://i.imgur.com/QztIcmt.jpeg'
 })
-  .then(webhook => webhook.send("Enter a wish after the `wish` command!"))
+  .then(webhook => {webhook.send("Enter a wish after the `wish` command!"); webhook.delete})
   .catch(console.error)
   
-msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
-});
 if (msg.content.match("&w") !== null || msg.content.match("&wish") !== null) {
   
     if (msg.webhookID){
@@ -346,15 +420,12 @@ if (msg.content.match("&w") !== null || msg.content.match("&wish") !== null) {
     msg.channel.createWebhook('Wishbot', {
   avatar: 'https://i.imgur.com/QztIcmt.jpeg'
 })
-  .then(webhook => webhook.send("Sorry, I don't have the capability to do that... Have this rat instead! 🐀"))
+  .then(webhook => {webhook.send("Sorry, I don't have the capability to do that... Have this rat instead! 🐀");})
   .catch(console.error)
   
     
   
     }}
-  msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
-});
   
 }}
 
@@ -362,15 +433,14 @@ if (msg.content.match("&w") !== null || msg.content.match("&wish") !== null) {
     msg.channel.createWebhook('Soulbot', {avatar: 'https://tel.img.pmdstatic.net/fit/http.3A.2F.2Fprd2-bone-image.2Es3-website-eu-west-1.2Eamazonaws.2Ecom.2FTEL.2Enews.2F2018.2F01.2F11.2Fed2046bd-8d8e-4730-88a1-387497ba43bc.2Epng/1200x500/crop-from/top/quality/80/ghostbot-enfin-une-appli-qui-vous-debarrasse-de-vos-rencards-pourris.jpg'}).then(webhook => {
       webhook.send('OOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOOOOoooOOOoooOOOooOOOOoOooOOOOOOoooOOoOOoOOO').then(sent => sent.delete());
     })
-    msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
-});
     oCount = 0;
   }
   else{
     oCount++;
   }
-
+  msg.channel.fetchWebhooks().then((webhooks) => { 
+    webhooks.forEach((wh) => {wh.delete().catch(_ => null);})
+  });
 });
 
 client.on("message", msg => {
@@ -425,7 +495,7 @@ client.on("message", msg => {
   .catch(console.error)
       
   msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
 });
     }
     //if(!msg.author.bot) msg.reply(msg.content)
@@ -441,7 +511,7 @@ client.on("message", msg => {
   .then(webhook => getJoke().then(joke => webhook.send(joke)))
   .catch(console.error)
        msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
   
   })
 }
@@ -468,7 +538,7 @@ client.on("message", msg => {
 
     
        msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
 });
 }//});
 
@@ -487,7 +557,7 @@ client.on("message", msg => {
 })
   .then(webhook => webhook.send("Magic Number Detected. Nice."));
        msg.channel.fetchWebhooks().then((webhooks) => {
-       webhooks.forEach((wh) => wh.delete());
+       webhooks.forEach(async (wh) => {try {await wh.delete()} catch (err) {}});
       });
   
 }});
