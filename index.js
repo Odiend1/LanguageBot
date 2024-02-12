@@ -438,9 +438,11 @@ if (msg.content.match("&w") !== null || msg.content.match("&wish") !== null) {
   else{
     oCount++;
   }
-  msg.channel.fetchWebhooks().then((webhooks) => { 
-    webhooks.forEach((wh) => {wh.delete().catch(_ => null);})
-  });
+  if(typeof msg.channel.fetchWebhooks === "function"){
+    msg.channel.fetchWebhooks().then((webhooks) => { 
+      webhooks.forEach((wh) => {wh.delete().catch(_ => null);})
+    });
+  }
 });
 
 client.on("message", msg => {
