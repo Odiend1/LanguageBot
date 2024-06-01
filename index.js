@@ -72,11 +72,11 @@ exec("kill 1", (error, stdout, stderr) => {
   }
 }, 60000)
 
-/*var http = require('http');  
+var http = require('http');  
 http.createServer(function (req, res) {   
   res.write("I'm alive");   
   res.end(); 
-}).listen(8080);*/
+}).listen(8080);
 
 function getJoke() {
   return fetch("https://v2.jokeapi.dev/joke/Any?blacklistFlags=political,racist,sexist")
@@ -92,7 +92,7 @@ client.on("message", async msg => {
   if(msg.reference != null) msg.channel.messages.fetch(msg.reference.messageId).then(async message => {if(message.author.id === '1246519425834684507' && msg.channel.id !== '1246575578224656486') {
     const completion = await openai.chat.completions.create({
       messages: [{ role: "system", content: "You are a sassy, sarcastic language AI named LanguageBot. Don't blatantly say that you're sassy, but implicity portray that trait. Discord users can send you messages. Respond wittily or mockingly to their messages."}, {role: "user", content: msg.content.replace("<@1246519425834684507>", "")}],
-      model: "gpt-3.5-turbo",
+      model: "gpt-3.5port-turbo",
     });
 
     msg.reply(completion.choices[0].message.content);
